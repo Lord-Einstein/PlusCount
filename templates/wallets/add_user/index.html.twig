@@ -1,0 +1,84 @@
+{% extends '_layouts/in_app.html.twig' %}
+
+{% block title %}Ajouter à {{ wallet.label }} | +Count{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/forms.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="page-ambient-glow"></div>
+
+    <div class="form-page-container">
+
+        <div class="form-card-in-app animated-container glow-card">
+
+            {# icône Enveloppe : Positionnée en haut à droite (Absolue) #}
+            <div class="corner-floating-icon">
+                <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+
+            <div class="form-header-center">
+                <h2 class="auth-title">Inviter un membre</h2>
+                <p class="auth-subtitle">Ajouter un utilisateur à <strong>{{ wallet.label }}</strong></p>
+            </div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'editor-form'}}) }}
+
+            <div class="form-body-content">
+
+                {# --- Champ User (Select) avec le style Input Group --- #}
+                <div class="input-group-custom">
+                    {{ form_widget(form.user, {'attr': {'class': 'hidden-native-select js-custom-select', 'placeholder': ' '}}) }}
+                    {{ form_label(form.user, 'Sélectionner l\'utilisateur', {'label_attr': {'class': 'form-label'}}) }}
+                </div>
+                {% if form_errors(form.user) %}
+                    <div class="custom-error-block">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        {{ form_errors(form.user) }}
+                    </div>
+                {% endif %}
+
+                <div class="role-selection-group">
+                    <label class="section-title-sm">Rôle attribué</label>
+                    <div class="radio-cards-row">
+                        {% for child in form.role %}
+                            <label class="radio-card-item">
+                                {{ form_widget(child) }}
+                                <span class="radio-content-box">
+                                    <span class="radio-text">{{ form_label(child) }}</span>
+                                </span>
+                                <i class="fa-solid fa-check-circle check-badge"></i>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if form_errors(form.role) %}
+                        <div class="custom-error-block">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ form_errors(form.role) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="form-actions-group">
+                <a href="{{ path('wallets_show', {uid: wallet.uid}) }}" class="btn-cancel-outline">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-modern">
+                    Envoyer <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/forms.js') }}"></script>
+{% endblock %}

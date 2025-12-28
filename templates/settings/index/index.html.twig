@@ -1,0 +1,170 @@
+{% extends '_layouts/in_app.html.twig' %}
+
+{% block title %}Mon Profil | +Count{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/settings.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/settings.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+    {# Background Decor #}
+    <div class="page-background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container settings-container">
+
+        {# --- HEADER PROFIL (Hero Card) --- #}
+        <div class="profile-hero-card">
+            <div class="profile-content">
+                <div class="avatar_wrapper">
+                    {% set currentAvatar = app.user.avatar ?? (app.user.gender == 'M' ? 'https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299539-5187871.png' : 'https://cdn3d.iconscout.com/3d/premium/thumb/with-glasses-3d-icon-png-download-5823066.png') %}
+
+                    <img src="{{ currentAvatar }}" alt="Mon Avatar" class="profile-avatar-img">
+
+                    <button onclick="openEditModal()" class="btn-edit-avatar" title="Modifier mon look">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </div>
+
+                <div class="profile-info">
+                    <h2 class="profile-name">{{ app.user.name }}</h2>
+                    <div class="profile-badges">
+                        <span class="badge-pro">Compte Vérifié <i class="fa-solid fa-check-circle"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# --- STATISTIQUES (Grid) --- #}
+        <div class="section-header">
+            <h4 class="section-title">Mes Statistiques</h4>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="stats-grid">
+            {# Wallet Créés #}
+            <div class="stat-card card-crown">
+                <div class="stat-icon-wrapper">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div class="stat-data">
+                    {# je passe la valeur cible dans data-count-target #}
+                    <h3 class="stat-value" data-count-target="{{ stats.owned }}">0</h3>
+                    <small class="stat-label">Projets créés</small>
+                </div>
+            </div>
+
+            {# Wallet Rejoints #}
+            <div class="stat-card card-blue">
+                <div class="stat-icon-wrapper">
+                    <i class="fa-solid fa-users-rectangle"></i>
+                </div>
+                <div class="stat-data">
+                    <h3 class="stat-value" data-count-target="{{ stats.joined }}">0</h3>
+                    <small class="stat-label">Projets rejoints</small>
+                </div>
+            </div>
+
+            {# Connexions #}
+            <div class="stat-card card-cyan">
+                <div class="stat-icon-wrapper">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div class="stat-data">
+                    <h3 class="stat-value" data-count-target="{{ stats.connections }}">0</h3>
+                    <small class="stat-label">Amis connectés</small>
+                </div>
+            </div>
+
+            {# Argent dépensé (Format spécial géré par JS) #}
+            <div class="stat-card card-green">
+                <div class="stat-icon-wrapper">
+                    <i class="fa-solid fa-money-bill-trend-up"></i>
+                </div>
+                <div class="stat-data">
+                    <h3 class="stat-value is-currency" data-count-target="{{ stats.spent / 100 }}">0,00 €</h3>
+                    <small class="stat-label">Total investi</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- MODAL EDIT (Glassmorphism) --- #}
+    <div id="editProfileModal" class="modal-overlay {{ openProfileModal ? 'active' : '' }}">
+        <div class="modal-box glass-modal">
+            <div class="modal-header">
+                <h4 class="modal-title">Modifier mon profil</h4>
+                <button onclick="closeEditModal()" class="btn-close-modal">&times;</button>
+            </div>
+
+            {{ form_start(form) }}
+            <div class="form-group-row">
+                <div class="form-col">
+                    {{ form_label(form.name) }}
+                    {{ form_widget(form.name, {'attr': {'class': 'input-styled', 'placeholder': 'Nom...'}}) }}
+                </div>
+                {% if form_errors(form.name) %}
+                    <div class="custom-error-block">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        {{ form_errors(form.name) }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group-row">
+                <label class="form-label-styled"></label>
+                <div id="profile_gender">
+                    {% for child in form.gender %}
+                        <div class="form-check">
+                            {{ form_widget(child, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                    {% endfor %}
+                    {% if form_errors(form.gender) %}
+                        <div class="custom-error-block">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ form_errors(form.gender) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="avatar-selection-area">
+                <label class="form-label-styled">Choisir un Avatar</label>
+                <div class="avatar-grid custom-scroll">
+                    {% for url in avatars %}
+                        <div class="avatar-option-wrapper">
+                            <img src="{{ url }}"
+                                 onclick="selectAvatar(this, '{{ url }}')"
+                                 class="avatar-item"
+                                 alt="Avatar option">
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {{ form_row(form.avatar, {'id': 'profile_avatar'}) }}
+            {% if form_errors(form.avatar) %}
+                <div class="custom-error-block">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    {{ form_errors(form.avatar) }}
+                </div>
+            {% endif %}
+
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" onclick="closeEditModal()">Annuler</button>
+                <button type="submit" class="btn-primary-gradient">Enregistrer</button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% set currentRoute = app.request.attributes.get('_route') %}
+
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<nav class="fab-wrapper" id="fabWrapper">
+    <button class="fab-main-btn" id="fabTrigger">
+        <i class="fa-solid fa-ellipsis-vertical" id="mainIcon"></i>
+    </button>
+
+    <ul class="fab-list">
+        <li style="--i:-1.5;">
+            <a
+                href="{{ path('wallets_list') }}"
+                class="{{ currentRoute == 'wallets_list' ? "active" : "" }}"
+                data-title="Wallets">
+
+                <i class="fa-solid fa-wallet"></i>
+                <span class="label">Wallets</span>
+            </a>
+        </li>
+
+        <li style="--i:-0.5;">
+            <a
+                href="{{ path('settings') }}"
+                class="{{ currentRoute == 'settings' ? "active" : "" }}"
+                data-title="Settings">
+                <i class="fa-solid fa-gear"></i>
+                <span class="label">Settings</span>
+            </a>
+        </li>
+
+
+        <li style="--i:0.5;">
+            <a href="#" data-title="Mode Sombre">
+                <i class="fa-solid fa-moon"></i>
+                <span class="label">Sombre</span>
+            </a>
+        </li>
+
+        <li style="--i:1.5;">
+            <a href="#" id="logoutTrigger" data-title="Déconnexion">
+                <i class="fa-solid fa-power-off"></i>
+                <span class="label">Logout</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+{# --- LE MODAL DE DÉCONNEXION --- #}
+<div class="logout-modal-overlay" id="logoutModal">
+    <div class="logout-card">
+        <div class="logout-icon-box">
+            <i class="fa-solid fa-power-off"></i>
+        </div>
+        <h3>Déconnexion</h3>
+        <p>Voulez-vous vraiment quitter votre session ?</p>
+
+        <div class="logout-actions">
+            <button class="btn-cancel" id="cancelLogout">Annuler</button>
+
+            <a href="{{ path('app_logout') }}" class="btn-confirm">
+                Me déconnecter
+            </a>
+        </div>
+    </div>
+</div>

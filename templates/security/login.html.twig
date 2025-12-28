@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log In | +Count{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/forms.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="auth-container">
+        <div class="glass-card">
+
+            {# PARTIE GAUCHE : VISUEL #}
+            <div class="auth-side-visual">
+                <iframe src="https://lottie.host/embed/34b5d8d8-0b81-475f-b288-2e52643c3f9a/oniOLcEFxc.lottie"
+                        class="visual-frame"
+                        title="Login Animation"></iframe>
+
+                <div class="auth-marketing-text">
+                    <h2>Bon retour sur +Count !</h2>
+                    <p>Accède à tes comptes en toute sécurité...</p>
+                </div>
+            </div>
+
+            <div class="auth-side-form">
+                <a href="{{ path('home') }}" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+
+                <h1 class="auth-title">Connexion</h1>
+                <p class="auth-subtitle">Gère tes finances partagées simplement.</p>
+
+                <form method="post">
+                    {% if error %}
+                        <div class="alert-box">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="input-group-custom">
+                        <input type="email" value="{{ last_username }}" name="_username" id="username"
+                               class="form-input" placeholder=" " required autofocus>
+                        <label for="username" class="form-label">Adresse Email.</label>
+                    </div>
+
+                    <div class="input-group-custom password-wrapper">
+                        <input type="password" name="_password" id="password"
+                               class="form-input" placeholder=" " required>
+                        <label for="password" class="form-label">Mot de passe.</label>
+
+                        <button type="button" class="password-toggle" id="toggleLoginPassword">
+                            <i class="fa-solid fa-eye" id="login-eye-icon"></i>
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <button class="btn-modern" type="submit">
+                        <span>Se connecter</span>
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </button>
+
+                    <div class="auth-links">
+                        <p>Pas de compte ? <a href="{{ path('app_register') }}">Créer un compte</a></p>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/forms.js') }}"></script>
+{% endblock %}

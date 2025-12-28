@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register | +Count{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/forms.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="auth-container">
+        <div class="glass-card">
+
+            <div class="auth-side-form">
+                <a href="{{ path('home') }}" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+
+                <h1 class="auth-title">Rejoindre <span style="color:var(--main-color);"> +Count</span></h1>
+                <p class="auth-subtitle">Vivez pleinement vos aventures financières!</p>
+
+                {{ form_start(registrationForm, {'attr': {'class': 'styled-form'}}) }}
+
+                <div class="input-group-custom">
+                    {{ form_widget(registrationForm.name, {'attr': {'placeholder': ' ', 'class': 'form-input'}}) }}
+                    {{ form_label(registrationForm.name, 'Votre Nom...', {'label_attr': {'class': 'form-label'}}) }}
+                    <div style="color:#d32f2f; font-size:0.8rem; margin-top:5px;">
+                        {{ form_errors(registrationForm.name) }}
+                    </div>
+                </div>
+
+                <div class="input-group-custom">
+                    {{ form_widget(registrationForm.email, {'attr': {'placeholder': ' ', 'class': 'form-input'}}) }}
+                    {{ form_label(registrationForm.email, 'Votre Email.', {'label_attr': {'class': 'form-label'}}) }}
+                    <div style="color:#d32f2f; font-size:0.8rem; margin-top:5px;">
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+                </div>
+
+                <div class="input-group-custom password-wrapper">
+                    {{ form_widget(registrationForm.plainPassword, {'id': 'register-password', 'attr': {'placeholder': ' ', 'class': 'form-input'}}) }}
+                    {{ form_label(registrationForm.plainPassword, 'Mot de passe.', {'label_attr': {'class': 'form-label'}}) }}
+
+                    <button type="button" class="password-toggle" id="toggleRegisterPassword">
+                        <i class="fa-solid fa-eye" id="register-eye-icon"></i>
+                    </button>
+
+                    <div style="color:#d32f2f; font-size:0.8rem; margin-top:5px;">
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+                </div>
+
+                <div class="mb-3"
+                     style=" width:100%; margin: 10px 0;">
+                    {{ form_widget(registrationForm.gender, {'attr': {'style': 'height: 18px; accent-color: var(--main-color); cursor: pointer;  display: flex; align-items: center; justify-content : center; gap : 15px;'}}) }}
+                </div>
+
+                <div class="mb-3" style="margin-top: 15px; display: flex; align-items: center; gap: 12px;">
+                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'style': 'width: 18px; height: 18px; accent-color: var(--main-color); cursor: pointer;'}}) }}
+                    <label for="{{ registrationForm.agreeTerms.vars.id }}"
+                           style="margin:0; cursor:pointer; font-size: 0.85rem; color: #666;">
+                        J'accepte les <a href="#" style="color:var(--main-color);">conditions d'utilisation</a>
+                    </label>
+                </div>
+
+
+                <button type="submit" class="btn-modern">
+                    <span>C'est parti !</span>
+                    <i class="fa-solid fa-rocket"></i>
+                </button>
+
+                {{ form_end(registrationForm) }}
+
+                <div class="auth-links">
+                    <p>Déjà membre ? <a href="{{ path('app_login') }}">Se connecter</a></p>
+                </div>
+            </div>
+
+            {# PARTIE DROITE : VISUEL #}
+            <div class="auth-side-visual">
+                <iframe src="https://lottie.host/embed/f699711b-b2e5-4b52-b99e-9ae0f90f1d86/uWlQI9zsIW.lottie"
+                        class="visual-frame"
+                        title="Register Rocket"></iframe>
+
+                <div class="auth-marketing-text">
+                    <h2>Finances de Groupe</h2>
+                    <p>Simplifiez vos dépenses partagées.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/forms.js') }}"></script>
+{% endblock %}

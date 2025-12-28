@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+
+{% if(app.user.avatar is null ) %}
+
+    {% set urlAvatar = app.user.gender == 'M'
+        ? 'https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299539-5187871.png'
+        : 'https://cdn3d.iconscout.com/3d/premium/thumb/with-glasses-3d-icon-png-download-5823066.png' %}
+
+{% else %}
+
+    {% set urlAvatar = app.user.avatar %}
+
+{% endif %}
+
+{% block body %}
+
+    {% block header %}
+        {% embed '_components/header.html.twig' %}
+            {% block header_right %}
+                <div class="user-profile">
+
+                    <p class="user-name">
+                        <span class="initial">.</span>{{ app.user ? app.user.userIdentifier : 'T\'es qui toi ??' }}
+                    </p>
+
+                    <div class="avatar-wrapper">
+                        <img src="{{ urlAvatar }}" alt="Avatar 3D" class="avatar-img">
+                        <span class="status-dot"></span>
+                    </div>
+                </div>
+            {% endblock %}
+        {% endembed %}
+    {% endblock %}
+
+
+    {# menu #}
+    {{ include('_components/menu.html.twig') }}
+
+    {# flash messages compenent #}
+    {{ include('_components/_flash_messages.html.twig') }}
+
+    <div class="container main-content">
+
+        {# container #}
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+{% endblock %}

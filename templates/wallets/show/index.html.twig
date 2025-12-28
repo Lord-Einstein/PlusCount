@@ -1,0 +1,198 @@
+{% extends '_layouts/in_app.html.twig' %}
+
+{% block title %}Détail {{ wallet.label }} | +Count {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/wallet_details.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="wallet-header-wrapper">
+        {# Top Nav #}
+        <div class="top-nav">
+            <a href="{{ path('wallets_list') }}" class="btn-back-styled">
+                <i class="fa-solid fa-arrow-left"></i> <span>Retour</span>
+            </a>
+            <div class="pagination-info">
+                Page {{ currentPage }} / {{ (totalPages > 1) ? totalPages : 1 }}
+            </div>
+        </div>
+
+        {# Header Content #}
+        <div class="header-main-row">
+            <div class="header-title-block">
+                <h1 class="page-title">{{ wallet.label }}</h1>
+                <span class="meta-created">
+                    | Créé par {{ wallet.owner.name }}
+                </span>
+            </div>
+
+            <div class="action-bar">
+                {% if userAccess and userAccess.role == 'admin' %}
+                    <a href="{{ path('wallets_edit', {uid: wallet.uid}) }}" class="btn-hero"
+                       title="Modifier le portefeuille">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <a href="{{ path('wallets_add_user', {uid: wallet.uid}) }}" class="btn-hero">
+                        <i class="fa-solid fa-user-plus"></i> <span>Inviter</span>
+                    </a>
+                {% endif %}
+                <button type="button" class="btn-hero" onclick="openMembersModal()">
+                    <i class="fa-solid fa-users"></i> <span>Membres</span>
+                </button>
+                <a href="{{ path('wallets_expense_create', {uid: wallet.uid}) }}" class="btn-hero primary">
+                    <i class="fa-solid fa-plus"></i> <span>Dépense</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# --- CARTE SOLDE --- #}
+    <div class="balance-card">
+        <div>
+            <div class="total-label">Solde Total</div>
+            <div class="total-amount">
+                {{ (wallet.totalAmount/100)|number_format(2, ',', ' ') }} <span class="currency-symbol">€</span>
+            </div>
+        </div>
+        <div class="balance-icon-wrapper">
+            <i class="fa-solid fa-wallet wallet-icon-deco"></i>
+        </div>
+    </div>
+
+    {# --- ACCORDÉON ÉQUILIBRAGE --- #}
+    {% if balances is not empty %}
+        <div class="accordion-wrapper">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <div class="icon-balance"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <span>Voir les équilibres</span>
+                    <span class="badge bg-warning text-dark rounded-pill ms-2 badge-action">
+                        Action requise
+                    </span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+            </button>
+
+            <div class="accordion-content" id="balanceAccordionContent">
+                <div>
+                    <div class="row">
+                        {% for debtorId, debts in balances %}
+                            {% set debtor = members[debtorId] %}
+                            <div class="col-md-6 mb-3">
+                                <ul class="debts-list">
+                                    {% for debt in debts %}
+                                        {% set creditor = members[debt.creditor_id] %}
+                                        {% set isMyDebt = userAccess.targetUser.name == debtor.name %}
+                                        {% set isMyRefund = userAccess.targetUser.name == creditor.name %}
+
+                                        <li class="debt-item">
+                                            <div>
+                                                <strong>{{ isMyDebt ? 'Vous' : debtor.name }}</strong> rembourse
+                                                <strong>{{ isMyRefund ? 'Vous' : creditor.name }}</strong>
+                                            </div>
+                                            <span
+                                                class="debt-amount {{ isMyRefund ? 'text-success-custom' : (isMyDebt ? 'text-danger-custom' : 'text-neutral-custom') }}">
+                                                {{ (debt.amount / 100)|number_format(2, ',', ' ') }} €
+                                            </span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if userAccess and userAccess.role == 'admin' %}
+                        <form action="{{ path('wallets_settle', {'uid': wallet.uid}) }}" method="post"
+                              class="form-no-margin">
+                            <button type="button" class="btn-settle-orange"
+                                    onclick="if(confirm('Tout marquer comme payé ?')) this.form.submit();">
+                                <i class="fa-solid fa-check-double"></i> Solder tous les comptes
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# --- LISTE DES DÉPENSES --- #}
+    <div class="transaction-container">
+        {% for expense in expenses %}
+            <div class="transaction-card">
+                <div class="t-icon-box"><i class="{{ expense.icon }}"></i></div>
+                <div class="t-details">
+                    <span class="t-label">{{ expense.description|default('Dépense') }}</span>
+                    <span
+                        class="t-meta">{{ expense.createdDate|date('d F Y') }} • par {{ expense.createdBy.name }}</span>
+                </div>
+                {% set isMe = expense.createdBy == userAccess.targetUser %}
+                <div class="{{ isMe ? 'price-me' : 'price-other' }}">
+                    {{ isMe ? '+' : '' }}{{ (expense.amount / 100)|number_format(2, ',', ' ') }} €
+                </div>
+                <div class="action-group">
+                    {% set avatarUrl = expense.createdBy.avatar ?? (expense.createdBy.gender == 'M' ? 'https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299539-5187871.png' : 'https://cdn3d.iconscout.com/3d/premium/thumb/with-glasses-3d-icon-png-download-5823066.png') %}
+                    <button class="btn-list-action view"
+                            onclick="openExpenseDetail('{{ expense.description|e('js') }}', '{{ (expense.amount / 100)|number_format(2, ',', ' ') }}', '{{ expense.icon }}', '{{ expense.createdBy.name|e('js') }}', '{{ expense.createdBy.email|e('js') }}', '{{ avatarUrl }}', '{{ expense.createdDate|date('d F Y à H:i') }}')">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    {% if userAccess and userAccess.role == 'admin' %}
+                        <button class="btn-list-action del"
+                                onclick="openExpenseDeleteModal('{{ path('wallets_expense_delete', {wallet_uid: wallet.uid, expense_uid: expense.uid}) }}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon-circle">
+                    <i class="fa-solid fa-receipt empty-icon"></i>
+                </div>
+                <h4 class="empty-title">Aucune dépense par ici ^^</h4>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# --- PAGINATION --- #}
+    {% if totalPages > 1 %}
+        <div class="pagination-wrapper pagination-container">
+            <ul class="pagination">
+                <li class="page-item {{ currentPage == 1 ? 'disabled' }}">
+                    <a href="{{ path('wallets_show', {uid: wallet.uid, page: currentPage - 1}) }}" class="page-link"><i
+                            class="fa-solid fa-chevron-left"></i></a>
+                </li>
+                {% for i in 1..totalPages %}
+                    <li class="page-item {{ currentPage == i ? 'active' }}">
+                        <a href="{{ path('wallets_show', {uid: wallet.uid, page: i}) }}" class="page-link">{{ i }}</a>
+                    </li>
+                {% endfor %}
+                <li class="page-item {{ currentPage == totalPages ? 'disabled' }}">
+                    <a href="{{ path('wallets_show', {uid: wallet.uid, page: currentPage + 1}) }}" class="page-link"><i
+                            class="fa-solid fa-chevron-right"></i></a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+
+    {# --- ZONE DANGER --- #}
+    {% if userAccess and userAccess.role == 'admin' %}
+        <div class="danger-zone">
+            <h3 class="danger-title">Zone rouge</h3>
+            <p class="danger-text">Cette action est dangereuse et irréversible</p>
+            <a href="{{ path('wallets_delete', {uid: wallet.uid}) }}" class="btn-delete-wallet"
+               onclick="return confirm('Êtes-vous sûr ? Cette action est irréversible.');">
+                <i class="fa-solid fa-trash-can"></i> Supprimer le portefeuille
+            </a>
+        </div>
+    {% endif %}
+
+    {% include '_components/_modals.html.twig' %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/wallet_details.js') }}"></script>
+{% endblock %}

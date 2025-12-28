@@ -1,0 +1,325 @@
+/* ============================================
+   WALLETS.CSS - VERSION FINALE
+   ============================================ */
+
+/* ============================================
+   GRID SYSTEM
+   ============================================ */
+.wallet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 25px;
+    padding-bottom: 40px;
+}
+
+/* ============================================
+   BASE CARTE
+   ============================================ */
+.wallet-card {
+    position: relative;
+    height: 230px;
+    border-radius: 24px;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* ============================================
+   CARTE EXISTANTE
+   ============================================ */
+.card-existing {
+    background: var(--card-bg);
+    border: 2px solid var(--glass-border);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 12px 24px rgba(0, 0, 0, 0.04);
+}
+
+@supports (backdrop-filter: blur(10px)) {
+    .card-existing {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+    }
+
+    [data-theme="dark"] .card-existing {
+        background: rgba(30, 41, 59, 0.8);
+    }
+}
+
+.card-existing:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 87, 34, 0.1);
+    border: 2px solid var(--main-color);
+}
+
+.card-bg-shape {
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(236, 107, 64, 0.28) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    transition: transform 0.5s ease;
+}
+
+[data-theme="dark"] .card-bg-shape {
+    background: radial-gradient(circle, rgba(236, 107, 64, 0.15) 0%, rgba(30, 41, 59, 0) 70%);
+}
+
+.card-existing:hover .card-bg-shape {
+    transform: scale(1.2);
+}
+
+/* ============================================
+   CONTENU DE LA CARTE
+   ============================================ */
+.card-content {
+    position: relative;
+    z-index: 2;
+    padding: 24px 24px 0 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.wallet-icon-mini {
+    color: var(--main-color);
+    font-size: 2rem;
+    transition: color 0.3s;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-admin {
+    background: rgba(255, 87, 34, 0.1);
+    color: var(--main-color);
+}
+
+[data-theme="dark"] .badge-admin {
+    background: rgba(255, 87, 34, 0.2);
+}
+
+.badge-member {
+    background: #ebf8ff;
+    color: #3182ce;
+}
+
+[data-theme="dark"] .badge-member {
+    background: rgba(49, 130, 206, 0.2);
+    color: #63b3ed;
+}
+
+.card-main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.wallet-name {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+[data-theme="dark"] .wallet-balance {
+    color: var(--purple-mid);
+}
+
+.wallet-balance {
+    font-size: 2.2rem;
+    color: var(--purple-deep);
+    line-height: 1.1;
+    letter-spacing: -1px;
+}
+
+.currency {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    vertical-align: top;
+    margin-left: 2px;
+}
+
+/* ============================================
+   FOOTER CARTE
+   ============================================ */
+.card-footer-w {
+    position: relative;
+    z-index: 2;
+    padding: 15px 24px 24px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.meta-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.meta-new {
+    font-size: 0.85rem;
+    color: #10b981;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.btn-mini-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #7c7575;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .btn-mini-arrow {
+    background: var(--purple-mid);
+}
+
+.card-existing:hover .btn-mini-arrow {
+    background: var(--purple-deep);
+    color: white;
+    transform: rotate(-45deg);
+    box-shadow: 0 5px 15px rgba(255, 87, 34, 0.3);
+}
+
+/* ============================================
+   CARTE NOUVEAU
+   ============================================ */
+.card-new {
+    background: var(--card-bg);
+    border: 2px dashed var(--purple-mid);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.new-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 2;
+}
+
+.icon-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--purple-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.8rem;
+    transition: all 0.4s ease;
+}
+
+.new-label {
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.new-bg-decoration {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 87, 34, 0.03) 0%, rgba(255, 255, 255, 0) 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    z-index: 1;
+}
+
+[data-theme="dark"] .new-bg-decoration {
+    background: radial-gradient(circle, rgba(255, 87, 34, 0.1) 0%, rgba(30, 41, 59, 0) 60%);
+}
+
+.card-new:hover {
+    border-color: var(--purple-deep);
+    border-style: solid;
+    transform: translateY(-5px);
+}
+
+.card-new:hover .new-bg-decoration {
+    opacity: 1;
+}
+
+.card-new:hover .icon-circle {
+    background: var(--purple-deep);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(41, 34, 255, 0.2);
+}
+
+.card-new:hover .new-label {
+    color: var(--text-dark);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .wallet-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wallet-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .wallet-card {
+        height: auto;
+        min-height: 200px;
+    }
+}
+
+@media (max-width: 320px) {
+    .card-content {
+        padding: 20px 20px 0 20px;
+    }
+
+    .card-footer-w {
+        padding: 10px 20px 20px 20px;
+    }
+
+    .wallet-balance {
+        font-size: 1.8rem;
+    }
+}

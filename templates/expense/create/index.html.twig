@@ -1,0 +1,99 @@
+{% extends '_layouts/in_app.html.twig' %}
+
+{% block title %}Nouvelle dépense | {{ wallet.label }} | +Count{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/forms.css') }}">
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-ambient-glow"></div>
+
+    <div class="form-page-container scrollable-view">
+
+        <div class="form-card-in-app animated-container glow-card">
+
+            {# L'icône animée au sommet #}
+            <div class="writing-pencil-icon icon-anim-euro">
+                <i class="fa-solid fa-euro-sign"></i>
+            </div>
+
+            <div class="form-header-center">
+                <h2 class="auth-title">Ajouter une dépense</h2>
+                <p class="auth-subtitle">Wallet : <strong>{{ wallet.label }}</strong></p>
+            </div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="form-body-content">
+
+                {# --- SECTION DE MON MONTANT GÉANT --- #}
+                <div class="hero-amount-section">
+                    <div class="amount-input-wrapper">
+                        {{ form_widget(form.amount, {'attr': {'class': 'input-hero-display', 'placeholder': '0.00'}}) }}
+                    </div>
+                    <div class="amount-underline"></div>
+
+                    {% if form_errors(form.amount) %}
+                        <div class="custom-error-block">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ form_errors(form.amount) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# --- DESCRIPTION --- #}
+                <div class="input-group-custom">
+                    {{ form_widget(form.description, {'attr': {'class': 'form-input with-icon', 'placeholder': ' '}}) }}
+                    {{ form_label(form.description, 'Description...', {'label_attr': {'class': 'form-label'}}) }}
+
+                    {% if form_errors(form.description) %}
+                        <div class="custom-error-block">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ form_errors(form.description) }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                {# --- GRILLE DE CATÉGORIES --- #}
+                <div class="category-section">
+                    <label class="section-title-sm">Catégorie</label>
+                    <div class="modern-grid-layout">
+                        {% for choice in form.icon %}
+                            <div class="category-tile-item">
+                                {# Le radio que je mettrais ensuite en hidden #}
+                                {{ form_widget(choice, {'attr': {'class': 'hidden-check'}}) }}
+
+                                {# Le label devient le bouton stylé pour radio choice #}
+                                {{ form_label(choice, null, {
+                                    'label_html': true,
+                                    'label_attr': {'class': 'tile-label'},
+                                    'label': '<i class="' ~ choice.vars.value ~ '"></i>'
+                                }) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form_errors(form.icon) %}
+                        <div class="custom-error-block">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ form_errors(form.icon) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="form-actions-group">
+                <a href="{{ path('wallets_show', {uid: wallet.uid}) }}" class="btn-cancel-outline">Annuler</a>
+                <button type="submit" class="btn-modern">
+                    Enregistrer <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends '_layouts/in_app.html.twig' %}
+
+{% block title %}Création de wallet | +Count{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/forms.css') }}">
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-ambient-glow"></div>
+    <div class="form-page-container">
+        <div class="form-card-in-app animated-container glow-card">
+
+            <div class="writing-pencil-icon">
+                <i class="fa-solid fa-pencil"></i>
+            </div>
+
+            <div class="form-header-center">
+                <h2 class="auth-title">Nouveau Portefeuille</h2>
+                <p class="auth-subtitle">Donne un nom à ton portefeuille et invite tes amis ou parents !</p>
+            </div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="form-body-content">
+                <div class="input-group-custom">
+                    {{ form_widget(form.name, {'attr': {'class': 'form-input', 'placeholder': ' '}}) }}
+                    {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                </div>
+                {# Erreur Stylée #}
+                {% if form_errors(form.name) %}
+                    <div class="custom-error-block">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        {{ form_errors(form.name) }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <div class="form-actions-group">
+
+
+                <a href="{{ path('wallets_list') }}" class="btn-cancel-outline">Annuler</a>
+                {# je mets le bouton de soumission  directement ici au lieu de le mettre dans le builder #}
+                <button type="submit" class="btn-modern">
+                    Créer maintenant <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
