@@ -20,7 +20,11 @@ VOLUME /app/var/
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	file \
 	git \
+    libcap2-bin \
 	&& rm -rf /var/lib/apt/lists/*
+
+# Fix pour Render : On retire les permissions spéciales qui font planter le démarrage
+RUN setcap -r /usr/local/bin/frankenphp
 
 RUN set -eux; \
 	install-php-extensions \
