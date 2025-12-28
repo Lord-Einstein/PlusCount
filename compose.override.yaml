@@ -5,6 +5,7 @@ services:
     build:
       context: .
       target: frankenphp_dev
+      dockerfile: Dockerfile.local
     volumes:
       - .:/app
       - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
