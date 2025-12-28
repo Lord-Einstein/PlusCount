@@ -99,5 +99,7 @@ RUN set -eux; \
 	mkdir -p var/cache var/log; \
 	composer dump-autoload --classmap-authoritative --no-dev; \
 	composer dump-env prod; \
+    php bin/console assets:install public; \
+    php bin/console asset-map:compile; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; sync;
