@@ -100,7 +100,5 @@ RUN set -eux; \
 	composer dump-autoload --classmap-authoritative --no-dev; \
 	composer dump-env prod; \
     php bin/console assets:install public; \
-    cp -R assets/styles public/styles; \
-    cp -R assets/scripts public/scripts; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; sync;
