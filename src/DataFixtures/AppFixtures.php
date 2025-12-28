@@ -9,13 +9,27 @@ use App\Entity\XUserWallet;
 use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Random\RandomException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Uid\Uuid;
 
 class AppFixtures extends Fixture
 {
-    private const array EXPENSE_TYPES = [
-        "hotel", "bar", "essence", "restau", "sortie", "souvenir", "sushi", "imprévu"
+    private const array EXPENSE_DATA = [
+        'Restaurant' => 'fa-solid fa-utensils',
+        'Courses' => 'fa-solid fa-cart-shopping',
+        'Bar' => 'fa-solid fa-beer-mug-empty',
+        'Transport' => 'fa-solid fa-bus',
+        'Logement' => 'fa-solid fa-house',
+        'Loisir' => 'fa-solid fa-gamepad',
+        'Santé' => 'fa-solid fa-stethoscope',
+        'Cadeau' => 'fa-solid fa-gift',
+        'Randonnée' => 'fa-solid fa-mountain',
+        'Fête' => 'fa-solid fa-champagne-glasses',
+        'Shopping' => 'fa-solid fa-shirt',
+        'Voyage' => 'fa-solid fa-plane',
+        'Abonnements' => 'fa-solid fa-tv',
+        'Autre' => 'fa-solid fa-receipt'
     ];
 
     private array $generatedUsers = [];
@@ -29,145 +43,120 @@ class AppFixtures extends Fixture
         $this->hasher = $hasher;
     }
 
-// ...
+    /**
+     * @throws RandomException
+     */
     public function load(ObjectManager $manager): void
     {
-        // initialisation des variables
         $this->manager = $manager;
         $this->generatedUsers = [];
         $this->generatedWallets = [];
 
-        // generate 2 different users
-        $this->generatedUsers[] = $this->generateUser("Alice", "alice@coda.fr", "alice");
-        $this->generatedUsers[] = $this->generateUser("Bob", "bob@coda.fr", "bob");
+        // 1. Users
+        $this->generatedUsers[] = $this->generateUser("Alice", "alice@coda.fr", "alice", "F");
+        $this->generatedUsers[] = $this->generateUser("Bob", "bob@coda.fr", "bob", "M");
 
-        // generate 3 different wallets
+        // 2. Wallets
         $this->generatedWallets[] = $this->generateWallet("Vacances");
         $this->generatedWallets[] = $this->generateWallet("Colloc");
         $this->generatedWallets[] = $this->generateWallet("Montagne");
 
-        // now, generate 5 expenses per wallets
+        // Récupération des clés (les descriptions : "Restaurant", "Courses"...) pour le random
+        $expenseTypes = array_keys(self::EXPENSE_DATA);
+
+        // 3. Expenses
         foreach ($this->generatedWallets as $wallet) {
-            for ($i = 0; $i < 25; $i++) {
+            for ($i = 0; $i < 125; $i++) {
+                // Alternance du payeur
+                $payer = $this->generatedUsers[$i % 2];
+
+                // Choix aléatoire d'un type de dépense
+                $randomTypeIndex = array_rand($expenseTypes);
+                $description = $expenseTypes[$randomTypeIndex];
+
+                // Récupération de l'icône associée
+                $icon = self::EXPENSE_DATA[$description];
+
                 $this->generateExpense(
                     $wallet,
                     random_int(1, 150) * 100,
-                    self::EXPENSE_TYPES[random_int(0, sizeof(self::EXPENSE_TYPES) - 1)],
-                    $this->generatedUsers[0]
-                );
-                $this->generateExpense(
-                    $wallet,
-                    random_int(1, 150) * 100,
-                    self::EXPENSE_TYPES[random_int(0, sizeof(self::EXPENSE_TYPES) - 1)],
-                    $this->generatedUsers[0]
-                );
-                $this->generateExpense(
-                    $wallet,
-                    random_int(1, 150) * 100,
-                    self::EXPENSE_TYPES[random_int(0, sizeof(self::EXPENSE_TYPES) - 1)],
-                    $this->generatedUsers[1]
-                );
-                $this->generateExpense(
-                    $wallet,
-                    random_int(1, 150) * 100,
-                    self::EXPENSE_TYPES[random_int(0, sizeof(self::EXPENSE_TYPES) - 1)],
-                    $this->generatedUsers[1]
-                );
-                $this->generateExpense(
-                    $wallet,
-                    random_int(1, 150) * 100,
-                    self::EXPENSE_TYPES[random_int(0, sizeof(self::EXPENSE_TYPES) - 1)],
-                    $this->generatedUsers[1]
+                    $description,
+                    $icon,
+                    $payer
                 );
             }
         }
 
-        // generating links between users and wallets
+        // 4. Liens User-Wallet
         foreach ($this->generatedWallets as $wallet) {
             foreach ($this->generatedUsers as $user) {
-                $role = $user->getName() == "Alice" ? "admin" : "user";
-
-                $this->generateXUserWallet($user, $wallet, $role);
+                $walletRole = ($user->getName() === "Alice") ? "admin" : "user";
+                $this->generateXUserWallet($user, $wallet, $walletRole);
             }
         }
-    }
 
-    public function generateXUserWallet(User $user, Wallet $wallet, string $role): XUserWallet
-    {
-        $xUserWallet = new XUserWallet();
-
-        $xUserWallet->setTargetUser($user);
-        $xUserWallet->setWallet($wallet);
-        $xUserWallet->setRole($role);
-
-        $xUserWallet->setCreatedBy($this->generatedUsers[0]);
-        $xUserWallet->setCreatedDate(new DateTime());
-
-        $this->manager->persist($xUserWallet);
         $this->manager->flush();
-
-        return $xUserWallet;
     }
 
-    public function generateExpense(Wallet $wallet, int $amount, string $description, User $createdBy): Expense
+    // --- HELPER METHODS ---
+
+    private function generateUser(string $name, string $email, string $password, string $gender): User
+    {
+        $user = new User();
+        $user->setName($name);
+        $user->setEmail($email);
+        $user->setGender($gender);
+        $user->setPassword($this->hasher->hashPassword($user, $password));
+
+        $this->manager->persist($user);
+        return $user;
+    }
+
+    private function generateWallet(string $label): Wallet
+    {
+        $wallet = new Wallet();
+        $wallet->setUid(Uuid::v7()->toString());
+        $wallet->setLabel($label);
+        $wallet->setTotalAmount(0);
+        $wallet->setPaymentsDue([]);
+        $wallet->setCreatedBy($this->generatedUsers[0]);
+        $wallet->setCreatedDate(new DateTime());
+
+        $this->manager->persist($wallet);
+        return $wallet;
+    }
+
+    // Ajout du paramètre $icon
+    private function generateExpense(Wallet $wallet, int $amount, string $description, string $icon, User $createdBy): Expense
     {
         $expense = new Expense();
         $expense->setUid(Uuid::v7()->toString());
 
         $expense->setWallet($wallet);
         $expense->setDescription($description);
+        $expense->setIcon($icon);
         $expense->setAmount($amount);
-
-        $totalAmount = $wallet->getTotalAmount();
-        $wallet->setTotalAmount($totalAmount + $amount);
-
         $expense->setCreatedBy($createdBy);
         $expense->setCreatedDate(new DateTime());
 
-        $this->manager->persist($expense);
-        $this->manager->flush();
+        $wallet->setTotalAmount($wallet->getTotalAmount() + $amount);
 
+        $this->manager->persist($expense);
         return $expense;
     }
 
-    public function generateWallet(string $label): Wallet
+    private function generateXUserWallet(User $user, Wallet $wallet, string $role): XUserWallet
     {
-        $wallet = new Wallet();
+        $xUserWallet = new XUserWallet();
+        $xUserWallet->setTargetUser($user);
+        $xUserWallet->setWallet($wallet);
+        $xUserWallet->setRole($role);
+        $xUserWallet->setCreatedBy($this->generatedUsers[0]);
+        $xUserWallet->setCreatedDate(new DateTime());
 
-        $wallet->setUid(Uuid::v7()->toString());
-
-        $wallet->setLabel($label);
-        $wallet->setTotalAmount(0);
-        $wallet->setPaymentsDue([]);
-
-        $wallet->setCreatedBy($this->generatedUsers[0]);
-        $wallet->setCreatedDate(new DateTime());
-
-        $this->manager->persist($wallet);
-        $this->manager->flush();
-
-        return $wallet;
-    }
-
-    /**
-     * Generates a User instance and store it in the databases.
-     *
-     * It also ensures that the password is hashed.
-     *
-     * @param string $name name of the user
-     * @param string $email email of the user
-     * @param string $password clear (not encrypted) password of the user
-     * @return User the created user
-     */
-    private function generateUser(string $name, string $email, string $password): User
-    {
-        $user = new User();
-        $user->setName($name);
-        $user->setEmail($email);
-        $user->setPassword($this->hasher->hashPassword($user, $password));
-        $this->manager->persist($user);
-        $this->manager->flush();
-
-        return $user;
+        $this->manager->persist($xUserWallet);
+        return $xUserWallet;
     }
 }
+
+
